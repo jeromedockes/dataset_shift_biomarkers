@@ -1,0 +1,13 @@
+Digraph g{
+    edge [arrowsize=0.7];
+    node [shape="plaintext", height=0];
+    margin = 0;
+    M -> X;
+    Y -> X;
+    S [shape="square"];
+    {
+        rank="same";
+        X;
+        S;
+    }
+}

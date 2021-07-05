@@ -1,0 +1,88 @@
+---
+version: 2.1
+
+executors:
+  texlive:
+    docker:
+      - image: jeromedockes/circleci_papers
+  python3:
+    docker:
+      - image: circleci/python:3.8
+  base:
+    docker:
+      - image: cimg/base:2020.01
+
+jobs:
+  full-make:
+    parameters:
+      exec:
+        type: executor
+    executor: << parameters.exec >>
+    steps:
+      - checkout
+      - run: make installdeps
+      - run: make clean
+      - run: make
+      - store_artifacts:
+          path: main.pdf
+          destination: main.pdf
+
+  make-from-existing-figs:
+    parameters:
+      exec:
+        type: executor
+    executor: << parameters.exec >>
+    steps:
+      - checkout
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y texlive-full
+      - run: make
+      - store_artifacts:
+          path: main.pdf
+          destination: main-make-from-checked-out-figures.pdf
+
+  pdflatex:
+    parameters:
+      exec:
+        type: executor
+    executor: << parameters.exec >>
+    steps:
+      - checkout
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y texlive-full
+      - run: pdflatex main.tex; bibtex main; pdflatex main.tex; pdflatex main.tex
+      - store_artifacts:
+          path: main.pdf
+          destination: main-pdflatex-from-checked-out-figures.pdf
+
+workflows:
+  push:
+    jobs:
+      - make-from-existing-figs:
+          exec: texlive
+
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 23 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - full-make:
+          exec: texlive
+      - pdflatex:
+          exec: texlive
+
+  weekly:
+    triggers:
+      - schedule:
+          cron: "0 3 * * 6"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - full-make:
+          exec: python3

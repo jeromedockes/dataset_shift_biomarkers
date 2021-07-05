@@ -1,0 +1,10 @@
+Digraph g{
+    margin = 0;
+    ranksep = .3;
+    edge [arrowsize=0.7];
+    node [ shape="plaintext", height=0];
+    S [shape="square"];
+    M -> X;
+    Y -> X;
+    X -> S;
+}

@@ -1,0 +1,10 @@
+Digraph g{
+    // rankdir = "LR";
+    node [ shape="plaintext", width=0];
+    Age [];
+    edge [arrowsize=0.7]
+    margin = 0;
+    "Age" -> X;
+    "Age" -> Y -> X;
+    { rank="same"; X; Y}
+}
